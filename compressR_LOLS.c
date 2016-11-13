@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <errno.h>
 
 
 char ** divide(char * text, int parts);
@@ -18,7 +18,8 @@ char ** divide(char * text, int parts);
 
 void compressR_LOLS(char * filename, int parts){
 
-	char buf[1000];
+	errno = 0;
+	char buf[10000];
 	FILE * ptr_file;
 	ptr_file = fopen(filename, "r");
 
@@ -27,8 +28,8 @@ void compressR_LOLS(char * filename, int parts){
 		exit(-1);
 	}
 
-	char * text = (char*)malloc(1000);
-	while (fgets(buf,1000, ptr_file) != NULL){
+	char * text = (char*)malloc(10000);
+	while (fgets(buf,10000, ptr_file) != NULL){
 		sprintf(text, "%s", buf);
 	}
 	fclose(ptr_file);
@@ -41,12 +42,12 @@ void compressR_LOLS(char * filename, int parts){
 	for (i = 0; i < parts; i++){
 		pids[i] = fork();
 		if (pids[i] == 0){  // running as the child
-			char * s = malloc(2);
+			char * s = malloc(3);
 			sprintf(s, "%d", i);
-			char * const paramList[] = {array[i], s, filename};
+			char * const paramList[] = {array[i], s, filename, NULL};
 
-			int error = execv("/Users/RyanMini/Documents/JUNYA/Systems Programming/Assignment2Worker/Debug/Assignment2Worker", paramList);
-			printf("%d\n", error);
+			int error = execv("/Users/RyanMini/Documents/JUNYA/SystemsProgramming/Assignment2Worker/Debug/Assignment2Worker", paramList);
+			printf("What happened: %s\n", strerror(errno));
 		}
 		else { 				// running as parent
 			//int  status;
