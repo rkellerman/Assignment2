@@ -20,15 +20,19 @@ void compressR_LOLS(char * filename, int parts){
 
 	errno = 0;
 	char buf[10000];
-	FILE * ptr_file;
-	ptr_file = fopen(filename, "r");
+	FILE * ptr_file;	// The file pointer
+	ptr_file = fopen(filename, "r");	//Open the file to read
 
+	// I think this needs to be checked against NULL
 	if (!ptr_file){
 		printf("ERROR reading file, check file name...\n");
 		exit(-1);
 	}
 
-	char * text = (char*)malloc(10000);
+	/*Not exactly sure what this does, but I assume it reads
+	  10,000 characters at a time and puts it in text?
+	*/
+	char * text = (char*)malloc(10000);	//
 	while (fgets(buf,10000, ptr_file) != NULL){
 		sprintf(text, "%s", buf);
 	}
@@ -36,9 +40,10 @@ void compressR_LOLS(char * filename, int parts){
 
 	int i;
 
-	char **array = divide(text, parts);
+	char **array = divide(text, parts);	//Divide text file into parts
 
-	pid_t * pids = (pid_t *)malloc(parts*sizeof(pid_t));
+	//Allocate the correct number of pids
+	pid_t * pids = (pid_t *)malloc(parts*sizeof(pid_t)); 
 	for (i = 0; i < parts; i++){
 		pids[i] = fork();
 		if (pids[i] == 0){  // running as the child
@@ -62,6 +67,11 @@ void compressR_LOLS(char * filename, int parts){
 
 }
 
+
+/* This function takes the entire input file and splits the text into the 
+number of parts specified. An array of pointers to chars is returned
+
+*/
 char ** divide(char * text, int parts){
 
 

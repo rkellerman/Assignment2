@@ -13,6 +13,9 @@
 
 pthread_mutex_t m;
 
+/* This functions splits the text into the appropriate number of parts
+
+*/
 char ** divide(char * text, int parts){
 
 	int len = strlen(text);
@@ -37,6 +40,10 @@ char ** divide(char * text, int parts){
 	return array;
 }
 
+
+/* This function is very similar to the one for processes
+
+*/
 void *compressT_worker_LOLS(char ** ptr){
 
 	char * text = ptr[0];
