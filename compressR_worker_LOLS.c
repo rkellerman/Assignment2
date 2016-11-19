@@ -128,9 +128,17 @@ char * compress(char * text){
 				index += 2;
 			}
 			else {
-				compressed[index] = (char)(currentSubLen + '0');
-				compressed[index + 1] = text[currentSubStart];
-				index += 2;
+				char * number = (char *)malloc(4);
+				sprintf(number, "%d", currentSubLen);
+				int numLen = strlen(number);
+
+				int j;
+				for (j = 0; j < numLen; j++){
+					compressed[index] = number[j];
+					index++;
+				}
+				compressed[index] = text[currentSubStart];
+				index++;
 			}
 			currentSubStart = i;
 			currentSubLen = 1;
@@ -147,9 +155,17 @@ char * compress(char * text){
 		index += 2;
 	}
 	else {
-		compressed[index] = (char)(currentSubLen + '0');
-		compressed[index + 1] = text[currentSubStart];
-		index += 2;
+		char * number = (char *)malloc(4);
+		sprintf(number, "%d", currentSubLen);
+		int numLen = strlen(number);
+
+		int j;
+		for (j = 0; j < numLen; j++){
+			compressed[index] = number[j];
+			index++;
+		}
+		compressed[index] = text[currentSubStart];
+		index++;
 	}
 
 
