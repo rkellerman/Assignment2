@@ -15,6 +15,55 @@
 
 char ** divide(char * text, int parts);
 
+void compressR_LOLS1(char * filename, int parts){
+
+	/***********************************************************************/
+	// in this segment, we fork into our different processes
+
+	pid_t * pids = (pid_t *)malloc(parts*sizeof(pid_t));
+	int i;
+
+	char * ps = malloc(4);
+	sprintf(ps, "%d", parts);
+
+	for (i = 0; i < parts; i++){
+
+		pids[i] = fork();
+
+		if (pids[i] == -1){ 							// returns -1 when there is an error forking
+			printf("ERROR during forking...\n");
+			exit(-1);
+		}
+		else if (pids[i]){
+			// do nothing
+		}
+		else { 											// if pids[i] is 0 we are in the child process
+
+			char * p = malloc(4);
+			sprintf(p, "%d", i);
+
+			char * const paramList[] = {filename, p, ps, NULL};
+
+			int error = execv("/Users/RyanMini/Documents/JUNYA/SystemsProgramming/Assignment2Worker/Debug/Assignment2Worker", paramList);
+			printf("What happened: %s\n", strerror(errno));
+			exit(-1);
+		}
+
+	}
+
+	/***********************************************************************/
+	// in this segment, we wait for the proceses to return
+
+	for (i = 0; i < parts; i++){
+		wait(NULL);
+	}
+
+	free(pids);
+
+	return;
+
+}
+
 
 void compressR_LOLS(char * filename, int parts){
 
@@ -93,7 +142,7 @@ int main(int argc, char ** argv){
 	int parts = atoi(argv[2]);
 	char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
 	filename = argv[1];
-	compressR_LOLS(filename, parts);
+	compressR_LOLS1(filename, parts);
 	printf("Nigga we made it\n");
 
 
