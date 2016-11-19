@@ -10,8 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-int main(int argc, char ** argv){
+void compressR_worker_LOLS(int argc, char ** argv){
 
 	char * text = argv[0];
 	int part = atoi(argv[1]);
@@ -99,4 +98,178 @@ int main(int argc, char ** argv){
 	printf("DONE\n");
 	exit(1);
 
+
 }
+
+char * compress(char * text){
+
+	char * compressed = (char *)malloc(1000);
+
+	printf("%s\n", text);
+
+	int len = strlen(text);
+	int currentSubStart = 0;
+	int currentSubLen = 1;
+	int i;
+	int index = 0;
+
+	for (i = 1; i < len; i++){
+		if (text[i] == text[i-1]){
+			currentSubLen++;
+		}
+		else {
+			if (currentSubLen == 1){
+				compressed[index] = text[currentSubStart];
+				index++;
+			}
+			else if (currentSubLen == 2){
+				compressed[index] = text[currentSubStart];
+				compressed[index + 1] = text[currentSubStart];
+				index += 2;
+			}
+			else {
+				compressed[index] = (char)(currentSubLen + '0');
+				compressed[index + 1] = text[currentSubStart];
+				index += 2;
+			}
+			currentSubStart = i;
+			currentSubLen = 1;
+		}
+
+	}
+	if (currentSubLen == 1){
+		compressed[index] = text[currentSubStart];
+		index++;
+	}
+	else if (currentSubLen == 2){
+		compressed[index] = text[currentSubStart];
+		compressed[index + 1] = text[currentSubStart];
+		index += 2;
+	}
+	else {
+		compressed[index] = (char)(currentSubLen + '0');
+		compressed[index + 1] = text[currentSubStart];
+		index += 2;
+	}
+
+
+
+	compressed[index] = '\0';
+	// at this point compresses holds the compressed string
+
+	return compressed;
+
+}
+
+void compressR_worker_LOLS1(int argc, char ** argv){
+
+	int part = atoi(argv[1]);
+	int parts = atoi(argv[2]);
+	char * filename = argv[0];
+
+	printf("Filename: %s, Current Part: %d, Total Parts: %d\n", filename, part, parts);
+
+	/***********************************************************************/
+	// in this segment we open the file and write its contents to a buffer
+
+	char * buf = malloc(10000);
+	FILE * ptr_file;
+	ptr_file = fopen(filename, "r");
+
+	if (!ptr_file){ 				// if ptr_file is NULL, there was an error
+		printf("ERROR reading file, check file name...\n");
+		exit(-1);
+	}
+
+	while (fgets(buf, 10000, ptr_file) != NULL){  		// scan through 10000 characters, or until we hit an error
+		sprintf(buf, "%s", buf);
+	}
+	fclose(ptr_file);
+
+
+	/***********************************************************************/
+	// in this segment, we use the buffer and the given number of parts to determine the indexes of the different parts
+
+
+	int len = strlen(buf);						// we are sure to free buf so that large sums of memory aren't copied
+
+	if (parts > len){
+		printf("ERROR parts > characters in input file...\n");
+	}
+
+	int baselen = len/parts;
+	int remain = len % parts;
+
+	int templen;
+	int i;
+
+	int startIndex = 0;
+	int endIndex;
+
+	templen = baselen + remain;
+	for (i = 0; i < part; i++){
+
+		remain = 0;
+		startIndex += templen;
+		templen = baselen + remain;
+	}
+
+	endIndex = startIndex + templen;
+
+	printf("Goes from %d to %d\n", startIndex, endIndex);
+	int partlen = endIndex - startIndex;
+
+	char * text = (char *)malloc(partlen);
+
+	memcpy(text, &buf[startIndex], partlen);
+	text[partlen] = '\0';
+	free(buf);
+
+	// printf("%s\n", text);
+
+	/***********************************************************************/
+	// in this segment, we have the chunk of text, we must now compress it
+	char * compressed = compress(text);
+	free(text);
+	printf("%s\n", compressed);
+
+	/***********************************************************************/
+	// in this segment, we write the compressed text to the appropriate file
+
+	int filelen = strlen(filename) - 3;
+	char * subbuf = (char*)malloc(filelen);
+	memcpy(subbuf, filename, filelen);
+	subbuf[filelen - 1] = '\0';
+	filelen += 10;
+
+	buf = (char*)malloc(filelen);
+
+	sprintf(buf, "%s_txt_LOLS%d", subbuf, part);
+	printf("%s\n", buf);
+	free(subbuf);
+
+	ptr_file = fopen(buf, "w");
+
+	if (ptr_file == NULL){
+		printf("ERROR writing file...");
+		exit(-1);
+	}
+
+	fprintf(ptr_file, "%s", compressed);
+	fclose(ptr_file);
+
+	free(buf);
+
+	exit(0);
+
+}
+
+
+int main(int argc, char ** argv){
+
+	compressR_worker_LOLS1(argc, argv);
+
+	return 0;
+
+}
+
