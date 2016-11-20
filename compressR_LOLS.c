@@ -38,7 +38,6 @@ void compressR_LOLS1(char * filename, int parts){
 			// do nothing
 		}
 		else { 											// if pids[i] is 0 we are in the child process
-
 			char * p = malloc(4);
 			sprintf(p, "%d", i);
 
@@ -48,7 +47,6 @@ void compressR_LOLS1(char * filename, int parts){
 			printf("What happened: %s\n", strerror(errno));
 			exit(-1);
 		}
-
 	}
 
 	/***********************************************************************/
@@ -61,9 +59,7 @@ void compressR_LOLS1(char * filename, int parts){
 	free(pids);
 
 	return;
-
 }
-
 
 void compressR_LOLS(char * filename, int parts){
 
@@ -143,7 +139,7 @@ int main(int argc, char ** argv){
 	char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
 	filename = argv[1];
 	compressR_LOLS1(filename, parts);
-	printf("Nigga we made it\n");
+	printf("Complete\n");
 
 
 }
