@@ -156,13 +156,10 @@ void compressT_LOLS(char * filename, int parts){
 		sprintf(s, "%d", i);
 
 		char *items[] = {array[i], s, filename};
-		pthread_create(&thread[i], NULL, compressT_worker_LOLS1, items);
-		sleep(1);
-	}
-
-	for (i = 0; i < parts, i++){
+		pthread_create(&thread[i], NULL, compressT_worker_LOLS, items);
 		pthread_join(thread[i], NULL);
 	}
+
 	printf("PROCESS DONE\n");
 
 
