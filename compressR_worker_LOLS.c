@@ -103,7 +103,7 @@ void compressR_worker_LOLS(int argc, char ** argv){
 
 char * compress(char * text){
 
-	char * compressed = (char *)malloc(1000);
+	char * compressed = (char *)malloc(strlen(text));
 
 	printf("%s\n", text);
 
@@ -177,6 +177,15 @@ char * compress(char * text){
 
 }
 
+int findLength(FILE * fp){
+	int count = 0;
+	int newChar;
+	while ((newChar = fgetc(fp)) != EOF)
+		count++;
+
+	return count;
+}
+
 void compressR_worker_LOLS1(int argc, char ** argv){
 
 	int part = atoi(argv[1]);
@@ -185,10 +194,11 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 
 	printf("Filename: %s, Current Part: %d, Total Parts: %d\n", filename, part, parts);
 
+
 	/***********************************************************************/
 	// in this segment we open the file and write its contents to a buffer
 
-	char * buf = malloc(10000);
+
 	FILE * ptr_file;
 	ptr_file = fopen(filename, "r");
 
@@ -197,9 +207,18 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 		exit(-1);
 	}
 
-	while (fgets(buf, 10000, ptr_file) != NULL){  		// scan through 10000 characters, or until we hit an error
-		sprintf(buf, "%s", buf);
+
+	int filelength = findLength(ptr_file) + 10;
+	char * buf = malloc(filelength);
+
+	rewind(ptr_file);
+
+	int i;
+	char ch;
+	for (i = 0; (i < filelength - 10) && ((ch = fgetc(ptr_file)) != EOF); i++){
+		buf[i] = ch;
 	}
+	buf[i] = '\0';
 	fclose(ptr_file);
 
 
@@ -217,7 +236,6 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	int remain = len % parts;
 
 	int templen;
-	int i;
 
 	int startIndex = 0;
 	int endIndex;
@@ -279,7 +297,6 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	exit(0);
 
 }
-
 
 int main(int argc, char ** argv){
 
