@@ -1,22 +1,53 @@
 /*
- * compressR_worker_LOLS.c
+ * compressT_LOLS.c
  *
- *  Created on: Nov 8, 2016
+ *  Created on: Nov 9, 2016
  *      Author: RyanMini
  */
 
 #include <stdio.h>
-#include <unistd.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#include <semaphore.h>
 
-void compressR_worker_LOLS(int argc, char ** argv){
+pthread_mutex_t m;
+sem_t s;
+char * filename;
+int parts;
 
-	char * text = argv[0];
-	int part = atoi(argv[1]);
-	char * filename = argv[2];
+char ** divide(char * text, int parts){
 
-	printf("text is : %s, part is %d, filename is %s\n", text, part, filename);
+	int len = strlen(text);
+
+	int baselen = len/parts;
+	int remain = len % parts;
+	int index = 0;
+	int i;
+
+	char **array = (char**)malloc(len);
+	for (i = 0; i < parts; i++){
+		int inputlen = baselen;
+		if (remain != 0){
+			inputlen++;
+			remain--;
+		}
+		array[i] = (char*)malloc(inputlen + 1);
+		memcpy(array[i], &text[index], inputlen);
+		index += inputlen;
+		printf("%s\n", array[i]);
+	}
+	return array;
+}
+
+void *compressT_worker_LOLS(char ** ptr){
+
+	char * text = ptr[0];
+	int part = atoi(ptr[1]);
+	char * filename = ptr[2];
+
+	printf("Text is: %s, part is %d, filename is: %s\n", text, part, filename);
 
 	char compressed[1000];
 
@@ -65,8 +96,6 @@ void compressR_worker_LOLS(int argc, char ** argv){
 			}
 		}
 	}
-
-
 	compressed[index] = '\0';
 	// at this point compresses holds the compressed string
 
@@ -93,15 +122,51 @@ void compressR_worker_LOLS(int argc, char ** argv){
 
 	fprintf(ptr_file, "%s", compressed);
 	fclose(ptr_file);
+	printf("THREAD DONE\n");
 
+	pthread_exit(NULL);
+}
 
-	printf("DONE\n");
-	exit(1);
+void compressT_LOLS(char * filename, int parts){
+
+	errno = 0;
+	char buf[10000];
+	FILE * ptr_file;
+	ptr_file = fopen(filename, "r");
+
+	if (!ptr_file){
+		printf("ERROR reading file, check file name...\n");
+		exit(-1);
+	}
+
+	char * text = (char*)malloc(10000);
+	while (fgets(buf,10000, ptr_file) != NULL){
+		sprintf(text, "%s", buf);
+	}
+	fclose(ptr_file);
+
+	int i;
+
+	char **array = divide(text, parts);
+
+	pthread_t thread[parts];
+	for (i = 0; i < parts; i++){
+
+		char * s = malloc(2);
+		sprintf(s, "%d", i);
+
+		char *items[] = {array[i], s, filename};
+		pthread_create(&thread[i], NULL, compressT_worker_LOLS, items);
+		pthread_join(thread[i], NULL);
+	}
+
+	printf("PROCESS DONE\n");
 
 
 }
 
 char * compress(char * text){
+
 
 	char * compressed = (char *)malloc(strlen(text));
 
@@ -114,6 +179,7 @@ char * compress(char * text){
 	int index = 0;
 
 	for (i = 1; i < len; i++){
+
 		if (text[i] == text[i-1]){
 			currentSubLen++;
 		}
@@ -186,18 +252,10 @@ int findLength(FILE * fp){
 	return count;
 }
 
-void compressR_worker_LOLS1(int argc, char ** argv){
+void * compressT_worker_LOLS1(int part){
 
-	int part = atoi(argv[1]);
-	int parts = atoi(argv[2]);
-	char * filename = argv[0];
-
-	printf("Filename: %s, Current Part: %d, Total Parts: %d\n", filename, part, parts);
-
-
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment we open the file and write its contents to a buffer
-
 
 	FILE * ptr_file;
 	ptr_file = fopen(filename, "r");
@@ -207,8 +265,8 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 		exit(-1);
 	}
 
-
 	int filelength = findLength(ptr_file) + 10;
+	printf("FILE LENGTH IS %d\n", filelength-10);
 	char * buf = malloc(filelength);
 
 	rewind(ptr_file);
@@ -219,14 +277,16 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 		buf[i] = ch;
 	}
 	buf[i] = '\0';
+
 	fclose(ptr_file);
 
+	printf("buffer is:\n%s\nEnd of buffer\n", buf);
 
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment, we use the buffer and the given number of parts to determine the indexes of the different parts
 
 
-	int len = strlen(buf);						// we are sure to free buf so that large sums of memory aren't copied
+	int len = strlen(buf);				// we are sure to free buf so that large sums of memory aren't copied
 
 	if (parts > len){
 		printf("ERROR parts > characters in input file...\n");
@@ -236,6 +296,7 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	int remain = len % parts;
 
 	int templen;
+
 
 	int startIndex = 0;
 	int endIndex;
@@ -259,15 +320,13 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	text[partlen] = '\0';
 	free(buf);
 
-	// printf("%s\n", text);
-
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment, we have the chunk of text, we must now compress it
 	char * compressed = compress(text);
 	free(text);
 	printf("%s\n", compressed);
 
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment, we write the compressed text to the appropriate file
 
 	int filelen = strlen(filename) - 3;
@@ -294,15 +353,34 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 
 	free(buf);
 
+	pthread_exit(0);
+}
+
+void compressT_LOLS1(char * filename, int parts){
+
+	int i;
+	pthread_t * threads = (pthread_t*)malloc(parts*sizeof(pthread_t));
+
+	for (i = 0; i < parts; i++){
+
+		pthread_create(&threads[i], NULL, compressT_worker_LOLS1, i);
+		// sleep(1);
+		// pthread_join(threads[i], NULL);
+	}
+
+	for (i = 0; i < parts; i++){
+		pthread_join(threads[i], NULL);
+	}
+
 	exit(0);
 
 }
 
 int main(int argc, char ** argv){
 
-	compressR_worker_LOLS1(argc, argv);
-
-	return 0;
-
+	sem_init(&s, 0, 1);
+	parts = atoi(argv[2]);
+	filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
+	filename = argv[1];
+	compressT_LOLS1(filename, parts);
 }
-
