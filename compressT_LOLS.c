@@ -14,6 +14,8 @@
 
 pthread_mutex_t m;
 sem_t s;
+char * filename;
+int parts;
 
 char ** divide(char * text, int parts){
 
@@ -240,15 +242,9 @@ char * compress(char * text){
 }
 
 
-void * compressT_worker_LOLS1(char ** ptr){
+void * compressT_worker_LOLS1(int part){
 
-	int parts = atoi(ptr[2]);
-	int part = atoi(ptr[1]);
-	char * filename = ptr[0];
-
-	printf("Filename: %s, Current Part: %d, Total Parts: %d\n", filename, part, parts);
-
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment we open the file and write its contents to a buffer
 
 	char * buf = malloc(10000);
@@ -265,7 +261,7 @@ void * compressT_worker_LOLS1(char ** ptr){
 	}
 	fclose(ptr_file);
 
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment, we use the buffer and the given number of parts to determine the indexes of the different parts
 
 
@@ -303,13 +299,13 @@ void * compressT_worker_LOLS1(char ** ptr){
 	text[partlen] = '\0';
 	free(buf);
 
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment, we have the chunk of text, we must now compress it
 	char * compressed = compress(text);
 	free(text);
 	printf("%s\n", compressed);
 
-	/***********************************************************************/
+	/*********************************************************************/
 	// in this segment, we write the compressed text to the appropriate file
 
 	int filelen = strlen(filename) - 3;
@@ -345,17 +341,14 @@ void compressT_LOLS1(char * filename, int parts){
 	int i;
 	pthread_t * threads = (pthread_t*)malloc(parts*sizeof(pthread_t));
 
-	char * ps = malloc(4);
-	sprintf(ps, "%d", parts);
-
 	for (i = 0; i < parts; i++){
 
-		char * s = malloc(4);
-		sprintf(s, "%d", i);
+		pthread_create(&threads[i], NULL, compressT_worker_LOLS1, i);
+		// sleep(1);
+		// pthread_join(threads[i], NULL);
+	}
 
-		char *items[] = {filename, s, ps};
-
-		pthread_create(&threads[i], NULL, compressT_worker_LOLS1, items);
+	for (i = 0; i < parts; i++){
 		pthread_join(threads[i], NULL);
 	}
 
@@ -366,8 +359,8 @@ void compressT_LOLS1(char * filename, int parts){
 int main(int argc, char ** argv){
 
 	sem_init(&s, 0, 1);
-	int parts = atoi(argv[2]);
-	char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
+	parts = atoi(argv[2]);
+	filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
 	filename = argv[1];
 	compressT_LOLS1(filename, parts);
 }
