@@ -44,7 +44,7 @@ void compressR_LOLS1(char * filename, int parts){
 			char * const paramList[] = {filename, p, ps, NULL};
 
 			int error = execv("/Users/RyanMini/Documents/JUNYA/SystemsProgramming/Assignment2Worker/Debug/Assignment2Worker", paramList);
-			printf("What happened: %s\n", strerror(errno));
+			printf("ERROR: %s\n", strerror(errno));
 			exit(-1);
 		}
 	}
@@ -139,7 +139,7 @@ int main(int argc, char ** argv){
 	char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
 	filename = argv[1];
 	compressR_LOLS1(filename, parts);
-	printf("Complete\n");
+	// printf("\n");
 
 
 }
