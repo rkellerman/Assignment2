@@ -167,7 +167,8 @@ void compressT_LOLS(char * filename, int parts){
 
 char * compress(char * text){
 
-	char * compressed = (char *)malloc(1000);
+
+	char * compressed = (char *)malloc(strlen(text));
 
 	printf("%s\n", text);
 
@@ -178,6 +179,7 @@ char * compress(char * text){
 	int index = 0;
 
 	for (i = 1; i < len; i++){
+
 		if (text[i] == text[i-1]){
 			currentSubLen++;
 		}
@@ -241,13 +243,20 @@ char * compress(char * text){
 
 }
 
+int findLength(FILE * fp){
+	int count = 0;
+	int newChar;
+	while ((newChar = fgetc(fp)) != EOF)
+		count++;
+
+	return count;
+}
 
 void * compressT_worker_LOLS1(int part){
 
 	/*********************************************************************/
 	// in this segment we open the file and write its contents to a buffer
 
-	char * buf = malloc(10000);
 	FILE * ptr_file;
 	ptr_file = fopen(filename, "r");
 
@@ -256,16 +265,28 @@ void * compressT_worker_LOLS1(int part){
 		exit(-1);
 	}
 
-	while (fgets(buf, 10000, ptr_file) != NULL){  		// scan through 10000 characters, or until we hit an error
-		sprintf(buf, "%s", buf);
+	int filelength = findLength(ptr_file) + 10;
+	printf("FILE LENGTH IS %d\n", filelength-10);
+	char * buf = malloc(filelength);
+
+	rewind(ptr_file);
+
+	int i;
+	char ch;
+	for (i = 0; (i < filelength - 10) && ((ch = fgetc(ptr_file)) != EOF); i++){
+		buf[i] = ch;
 	}
+	buf[i] = '\0';
+
 	fclose(ptr_file);
+
+	printf("buffer is:\n%s\nEnd of buffer\n", buf);
 
 	/*********************************************************************/
 	// in this segment, we use the buffer and the given number of parts to determine the indexes of the different parts
 
 
-	int len = strlen(buf);						// we are sure to free buf so that large sums of memory aren't copied
+	int len = strlen(buf);				// we are sure to free buf so that large sums of memory aren't copied
 
 	if (parts > len){
 		printf("ERROR parts > characters in input file...\n");
@@ -275,7 +296,7 @@ void * compressT_worker_LOLS1(int part){
 	int remain = len % parts;
 
 	int templen;
-	int i;
+
 
 	int startIndex = 0;
 	int endIndex;
@@ -336,7 +357,6 @@ void * compressT_worker_LOLS1(int part){
 }
 
 void compressT_LOLS1(char * filename, int parts){
-
 
 	int i;
 	pthread_t * threads = (pthread_t*)malloc(parts*sizeof(pthread_t));
