@@ -10,97 +10,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-void compressR_worker_LOLS(int argc, char ** argv){
-
-	char * text = argv[0];
-	int part = atoi(argv[1]);
-	char * filename = argv[2];
-
-	printf("text is : %s, part is %d, filename is %s\n", text, part, filename);
-
-	char compressed[1000];
-
-	int len = strlen(text);
-	int currentSubStart = 0;
-	int currentSubLen = 1;
-	int i;
-	int index = 0;
-
-	for (i = 1; i < len; i++){
-		if (text[i] == text[i-1]){
-			currentSubLen++;
-		}
-		else {
-			if (currentSubLen == 1){
-				compressed[index] = text[currentSubStart];
-				index++;
-			}
-			else if (currentSubLen == 2){
-				compressed[index] = text[currentSubStart];
-				compressed[index + 1] = text[currentSubStart];
-				index += 2;
-			}
-			else {
-				compressed[index] = (char)(currentSubLen + '0');
-				compressed[index + 1] = text[currentSubStart];
-				index += 2;
-			}
-			currentSubStart = i;
-			currentSubLen = 1;
-		}
-		if (i == len - 1){
-			if (currentSubLen == 1){
-				compressed[index] = text[currentSubStart];
-				index++;
-			}
-			else if (currentSubLen == 2){
-				compressed[index] = text[currentSubStart];
-				compressed[index + 1] = text[currentSubStart];
-				index += 2;
-			}
-			else {
-				compressed[index] = (char)(currentSubLen + '0');
-				compressed[index + 1] = text[currentSubStart];
-				index += 2;
-			}
-		}
-	}
-
-
-	compressed[index] = '\0';
-	// at this point compresses holds the compressed string
-
-
-	int filelen = strlen(filename) - 3;
-	char subbuff[filelen];
-	memcpy(subbuff, filename, filelen);
-	subbuff[filelen - 1] = '\0';
-	filelen += 10;
-
-	char buff[filelen];
-
-	sprintf(buff, "%s_txt_LOLS%d", subbuff, part);
-	printf("%s\n", buff);
-
-
-	FILE * ptr_file;
-	ptr_file = fopen(buff, "w");
-
-	if (ptr_file == NULL){
-		printf("ERROR writing file...");
-		exit(-1);
-	}
-
-	fprintf(ptr_file, "%s", compressed);
-	fclose(ptr_file);
-
-
-	printf("DONE\n");
-	exit(1);
-
-
-}
-
 char * compress(char * text){
 
 	char * compressed = (char *)malloc(strlen(text));
@@ -192,7 +101,7 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	int parts = atoi(argv[2]);
 	char * filename = argv[0];
 
-	printf("Filename: %s, Current Part: %d, Total Parts: %d\n", filename, part, parts);
+	//printf("Filename: %s, Current Part: %d, Total Parts: %d\n", filename, part, parts);
 
 
 	/***********************************************************************/
@@ -230,6 +139,7 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 
 	if (parts > len){
 		printf("ERROR parts > characters in input file...\n");
+		exit(-1);
 	}
 
 	int baselen = len/parts;
@@ -250,7 +160,7 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 
 	endIndex = startIndex + templen;
 
-	printf("Goes from %d to %d\n", startIndex, endIndex);
+	// printf("Goes from %d to %d\n", startIndex, endIndex);
 	int partlen = endIndex - startIndex;
 
 	char * text = (char *)malloc(partlen);
@@ -279,7 +189,7 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	buf = (char*)malloc(filelen);
 
 	sprintf(buf, "%s_txt_LOLS%d", subbuf, part);
-	printf("%s\n", buf);
+	// printf("%s\n", buf);
 	free(subbuf);
 
 	ptr_file = fopen(buf, "w");
