@@ -266,7 +266,7 @@ void * compressT_worker_LOLS1(int part){
 	}
 
 	int filelength = findLength(ptr_file) + 10;
-	printf("FILE LENGTH IS %d\n", filelength-10);
+	// printf("FILE LENGTH IS %d\n", filelength-10);
 	char * buf = malloc(filelength);
 
 	rewind(ptr_file);
@@ -280,7 +280,7 @@ void * compressT_worker_LOLS1(int part){
 
 	fclose(ptr_file);
 
-	printf("buffer is:\n%s\nEnd of buffer\n", buf);
+	// printf("buffer is:\n%s\nEnd of buffer\n", buf);
 
 	/*********************************************************************/
 	// in this segment, we use the buffer and the given number of parts to determine the indexes of the different parts
@@ -290,6 +290,7 @@ void * compressT_worker_LOLS1(int part){
 
 	if (parts > len){
 		printf("ERROR parts > characters in input file...\n");
+		exit(-1);
 	}
 
 	int baselen = len/parts;
@@ -311,7 +312,7 @@ void * compressT_worker_LOLS1(int part){
 
 	endIndex = startIndex + templen;
 
-	printf("Goes from %d to %d\n", startIndex, endIndex);
+	// printf("Goes from %d to %d\n", startIndex, endIndex);
 	int partlen = endIndex - startIndex;
 
 	char * text = (char *)malloc(partlen);
@@ -338,7 +339,7 @@ void * compressT_worker_LOLS1(int part){
 	buf = (char*)malloc(filelen);
 
 	sprintf(buf, "%s_txt_LOLS%d", subbuf, part);
-	printf("%s\n", buf);
+	// printf("%s\n", buf);
 	free(subbuf);
 
 	ptr_file = fopen(buf, "w");
