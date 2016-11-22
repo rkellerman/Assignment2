@@ -14,7 +14,7 @@
 #include <time.h>
 
 
-void compressR_LOLS1(char * filename, int parts){
+void compressR_LOLS(char * filename, int parts){
 
 	/***********************************************************************/
 	// in this segment, we fork into our different processes
@@ -82,7 +82,7 @@ int main(int argc, char ** argv){
 	//char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
 
 	char * filename = argv[1];
-	compressR_LOLS1(filename, parts);
+	compressR_LOLS(filename, parts);
 
 	//free(filename);
 	// printf("\n");
