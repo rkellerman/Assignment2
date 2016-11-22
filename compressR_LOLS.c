@@ -67,17 +67,25 @@ int main(int argc, char ** argv){
 
 	//int i;
 	//for (i = 0; i < 10000000; i++){
-		// code to read the input file and then calls compressR_LOLS
+	// code to read the input file and then calls compressR_LOLS
+	if (argc != 3){
+		printf("Error: incorrect number of inputs...\n");
+		exit(-1);
+	}
 
-			int parts = atoi(argv[2]);
+	int parts = atoi(argv[2]);
+	if (parts <= 0){
+		printf("Error: invalid number of parts\n");
+		exit(-1);
+	}
 
-			//char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
+	//char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
 
-			char * filename = argv[1];
-			compressR_LOLS1(filename, parts);
+	char * filename = argv[1];
+	compressR_LOLS1(filename, parts);
 
-			//free(filename);
-			// printf("\n");
+	//free(filename);
+	// printf("\n");
 	//}
 
 
