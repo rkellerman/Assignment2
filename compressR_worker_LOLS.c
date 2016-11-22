@@ -95,7 +95,7 @@ int findLength(FILE * fp){
 	return count;
 }
 
-void compressR_worker_LOLS1(int argc, char ** argv){
+void compressR_worker_LOLS(int argc, char ** argv){
 
 	int part = atoi(argv[1]);
 	int parts = atoi(argv[2]);
@@ -211,7 +211,7 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 
 int main(int argc, char ** argv){
 
-	compressR_worker_LOLS1(argc, argv);
+	compressR_worker_LOLS(argc, argv);
 
 	exit(0);
 
