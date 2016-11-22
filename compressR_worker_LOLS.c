@@ -14,7 +14,7 @@ char * compress(char * text){
 
 	char * compressed = (char *)malloc(strlen(text));
 
-	printf("%s\n", text);
+	// printf("%s\n", text);
 
 	int len = strlen(text);
 	int currentSubStart = 0;
@@ -169,7 +169,7 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	text[partlen] = '\0';
 	free(buf);
 
-	// printf("%s\n", text);
+	printf("%s\n", text);
 
 	/***********************************************************************/
 	// in this segment, we have the chunk of text, we must now compress it
@@ -203,8 +203,9 @@ void compressR_worker_LOLS1(int argc, char ** argv){
 	fclose(ptr_file);
 
 	free(buf);
+	free(compressed);
 
-	exit(0);
+	return;
 
 }
 
@@ -212,7 +213,7 @@ int main(int argc, char ** argv){
 
 	compressR_worker_LOLS1(argc, argv);
 
-	return 0;
+	exit(0);
 
 }
 
