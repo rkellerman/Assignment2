@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 
 void compressR_LOLS1(char * filename, int parts){
@@ -47,6 +48,8 @@ void compressR_LOLS1(char * filename, int parts){
 		}
 	}
 
+	free(ps);
+
 	/***********************************************************************/
 	// in this segment, we wait for the proceses to return
 
@@ -60,13 +63,29 @@ void compressR_LOLS1(char * filename, int parts){
 }
 
 int main(int argc, char ** argv){
+	clock_t begin = clock();
 
-	// code to read the input file and then calls compressR_LOLS
-	int parts = atoi(argv[2]);
-	char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
-	filename = argv[1];
-	compressR_LOLS1(filename, parts);
-	// printf("\n");
+	//int i;
+	//for (i = 0; i < 10000000; i++){
+		// code to read the input file and then calls compressR_LOLS
+
+			int parts = atoi(argv[2]);
+
+			//char * filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
+
+			char * filename = argv[1];
+			compressR_LOLS1(filename, parts);
+
+			//free(filename);
+			// printf("\n");
+	//}
+
+
+	clock_t end = clock();
+	double time_spent = (double)(end - begin)/CLOCKS_PER_SEC;
+	printf("Run time = %0.6f\n", time_spent);
+
+	exit(0);
 
 
 }
