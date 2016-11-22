@@ -11,6 +11,7 @@
 #include <string.h>
 #include <errno.h>
 #include <semaphore.h>
+#include <time.h>
 
 pthread_mutex_t m;
 sem_t s;
@@ -84,6 +85,7 @@ char * compress(char * text){
 		}
 		compressed[index] = text[currentSubStart];
 		index++;
+		free(number);
 	}
 
 
@@ -104,7 +106,7 @@ int findLength(FILE * fp){
 	return count;
 }
 
-void * compressT_worker_LOLS1(int part){
+void * compressT_worker_LOLS(int part){
 
 	/*********************************************************************/
 	// in this segment we open the file and write its contents to a buffer
@@ -205,18 +207,19 @@ void * compressT_worker_LOLS1(int part){
 	fclose(ptr_file);
 
 	free(buf);
+	free(compressed);
 
 	pthread_exit(0);
 }
 
-void compressT_LOLS1(char * filename, int parts){
+void compressT_LOLS(char * filename, int parts){
 
 	int i;
 	pthread_t * threads = (pthread_t*)malloc(parts*sizeof(pthread_t));
 
 	for (i = 0; i < parts; i++){
 
-		pthread_create(&threads[i], NULL, compressT_worker_LOLS1, i);
+		pthread_create(&threads[i], NULL, compressT_worker_LOLS, i);
 		// sleep(1);
 		// pthread_join(threads[i], NULL);
 	}
@@ -225,15 +228,34 @@ void compressT_LOLS1(char * filename, int parts){
 		pthread_join(threads[i], NULL);
 	}
 
-	exit(0);
+	free(threads);
+
+	return;
 
 }
 
 int main(int argc, char ** argv){
 
-	sem_init(&s, 0, 1);
-	parts = atoi(argv[2]);
-	filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
-	filename = argv[1];
-	compressT_LOLS1(filename, parts);
+
+	clock_t begin = clock();
+	//int i = 0;
+	//for (i = 0; i < 10000000; i++){
+
+
+		parts = atoi(argv[2]);
+		// filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
+
+
+		filename = argv[1];
+		compressT_LOLS(filename, parts);
+
+
+	//}
+
+
+	clock_t end = clock();
+	double time_spent = (double)(end - begin)/CLOCKS_PER_SEC;
+	printf("Run time = %0.6f\n", time_spent);
+
+	exit(0);
 }
