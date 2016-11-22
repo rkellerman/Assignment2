@@ -236,18 +236,27 @@ void compressT_LOLS(char * filename, int parts){
 
 int main(int argc, char ** argv){
 
+	if (argc != 3){
+		printf("Error: incorrect number of inputs...\n");
+		exit(-1);
+	}
+
 
 	clock_t begin = clock();
 	//int i = 0;
 	//for (i = 0; i < 10000000; i++){
 
 
-		parts = atoi(argv[2]);
-		// filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
+	parts = atoi(argv[2]);
+	if (parts <= 0){
+		printf("Error: invalid number of parts\n");
+		exit(-1);
+	}
+	// filename = (char*)malloc(sizeof(char)*sizeof(argv[1]));
 
 
-		filename = argv[1];
-		compressT_LOLS(filename, parts);
+	filename = argv[1];
+	compressT_LOLS(filename, parts);
 
 
 	//}
