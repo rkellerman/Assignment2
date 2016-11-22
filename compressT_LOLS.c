@@ -106,11 +106,12 @@ int findLength(FILE * fp){
 	return count;
 }
 
-void * compressT_worker_LOLS(int part){
+void * compressT_worker_LOLS(void * numpart){
 
 	/*********************************************************************/
 	// in this segment we open the file and write its contents to a buffer
-
+	int * partpointer = (int*) numpart;
+	int part = *partpointer;
 	FILE * ptr_file;
 	ptr_file = fopen(filename, "r");
 
@@ -219,7 +220,7 @@ void compressT_LOLS(char * filename, int parts){
 
 	for (i = 0; i < parts; i++){
 
-		pthread_create(&threads[i], NULL, compressT_worker_LOLS, i);
+		pthread_create(&threads[i], NULL, compressT_worker_LOLS, &i);
 		// sleep(1);
 		// pthread_join(threads[i], NULL);
 	}
